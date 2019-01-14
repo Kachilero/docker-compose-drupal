@@ -89,6 +89,8 @@ docker-compose --file "${STACK_ROOT}/docker-compose.yml" up -d --build
 
 if ! [ ${__install_drupal} == "0" ]; then
   echo -e "\n>>>>\n[setup::info] Install Drupal ${__install_drupal}\n<<<<\n"
+  # Wait a bit for the stack to be up.
+  sleep 20s
   ${STACK_ROOT}/scripts/install-drupal.sh setup ${__install_drupal}
 fi
 
