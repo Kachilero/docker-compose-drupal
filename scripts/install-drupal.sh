@@ -323,7 +323,7 @@ _setup_advanced() {
 }
 
 _ensure_drush() {
-  if ! [ -f "${HOST_WEB_ROOT}/vendor/drush/drush/drush" ]; then
+  if ! [ -f "${STACK_DRUPAL_ROOT}/vendor/drush/drush/drush" ]; then
     printf "[info] Install missing drush\\n"
     # Drush is not included in varbase distribution.
     if [ -x "$(command -v composer)" ]; then

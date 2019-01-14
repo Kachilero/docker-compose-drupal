@@ -166,14 +166,12 @@ _set_container_pgsql() {
 
 # Helper to ensure php container is runing.
 _set_project_container_php() {
-  if [ -z ${PROJECT_CONTAINER_NAME} ]; then
-      RUNNING=$(docker ps -f "name=php" -f "status=running" -q | head -1 2> /dev/null)
-    if [ -z "$RUNNING" ]; then
-      die "No running PHP container found, did you run docker-compose up -d ?"
-    else
-      PROJECT_CONTAINER_NAME=$(docker inspect --format="{{ .Name }}" $RUNNING)
-      PROJECT_CONTAINER_NAME="${PROJECT_CONTAINER_NAME///}"
-    fi
+  RUNNING=$(docker ps -f "name=php" -f "status=running" -q | head -1 2> /dev/null)
+  if [ -z "$RUNNING" ]; then
+    die "No running PHP container found, did you run docker-compose up -d ?"
+  else
+    PROJECT_CONTAINER_NAME=$(docker inspect --format="{{ .Name }}" $RUNNING)
+    PROJECT_CONTAINER_NAME="${PROJECT_CONTAINER_NAME///}"
   fi
 }
 
