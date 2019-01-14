@@ -119,10 +119,10 @@ if ! [ -d "${HOME}/drupal" ]; then
   ln -s ${STACK_DRUPAL_ROOT} ${HOME}/drupal
 fi
 if ! [ -d "${HOME}/dump" ]; then
-  ln -s ${STACK_ROOT}${HOST_DATABASE_DUMP#'./'} ${HOME}/dump
+  ln -s ${STACK_ROOT}/${HOST_DATABASE_DUMP#'./'} ${HOME}/dump
 fi
 if ! [ -d "${HOME}/scripts" ]; then
-  ln -s ${STACK_ROOT}scripts ${HOME}/scripts
+  ln -s ${STACK_ROOT}/scripts ${HOME}/scripts
 fi
 
 # Set up tools from stack.

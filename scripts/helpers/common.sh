@@ -51,7 +51,7 @@ done
 _DIR="$( cd -P "$( dirname "$_SOURCE" )" && pwd )"
 
 # Use on a lot of scripts.
-STACK_ROOT=${_DIR%"scripts/helpers"}
+STACK_ROOT=${_DIR%"/scripts/helpers"}
 
 ###############################################################################
 # Die
@@ -102,7 +102,7 @@ if [ -f $_DIR/../.env.local ]; then
   source $_DIR/../.env.local
 fi
 
-STACK_DRUPAL_ROOT=${STACK_ROOT}${HOST_WEB_ROOT#'./'}
+STACK_DRUPAL_ROOT=${STACK_ROOT}/${HOST_WEB_ROOT#'./'}
 
 # Basic variables.
 _NOW="$(date +'%Y%m%d.%H-%M-%S')"

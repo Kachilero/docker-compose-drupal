@@ -13,15 +13,21 @@
 # Bash Boilerplate: https://github.com/alphabetum/bash-boilerplate
 # Bash Boilerplate: Copyright (c) 2015 William Melody • hi@williammelody.com
 
-_SOURCE="${BASH_SOURCE[0]}"
-while [ -h "$_SOURCE" ]; do # resolve $_SOURCE until the file is no longer a symlink
+if [ -z ${STACK_ROOT} ]; then
+  _SOURCE="${BASH_SOURCE[0]}"
+  while [ -h "$_SOURCE" ]; do # resolve $_SOURCE until the file is no longer a symlink
+    _DIR="$( cd -P "$( dirname "$_SOURCE" )" && pwd )"
+    _SOURCE="$(readlink "$_SOURCE")"
+    [[ $_SOURCE != /* ]] && _SOURCE="$_DIR/$_SOURCE" # if $_SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+  done
   _DIR="$( cd -P "$( dirname "$_SOURCE" )" && pwd )"
-  _SOURCE="$(readlink "$_SOURCE")"
-  [[ $_SOURCE != /* ]] && _SOURCE="$_DIR/$_SOURCE" # if $_SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
-done
-_DIR="$( cd -P "$( dirname "$_SOURCE" )" && pwd )"
 
-source $_DIR/helpers/common.sh
+  if [ ! -f $_DIR/helpers/common.sh ]; then
+    echo -e "Missing helpers/common.sh file."
+    exit 1
+  fi
+  source $_DIR/helpers/common.sh
+fi
 
 ###############################################################################
 # Help
