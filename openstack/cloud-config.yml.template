@@ -45,19 +45,25 @@ runcmd:
   #
   # Default is the whole stack, for more default stacks see:
   #   https://github.com/Mogtofu33/docker-compose-drupal/tree/master/samples
-  # This script accept branch as first argument and samples file name as second.
+  # This script accept samples file name as first argument and Drupal install as
+  # second.
+  # Uncoment depending the distribution you need, default is full with no Drupal
+  # 8 installation
   - su -c "/home/ubuntu/setup_DCD_ubuntu.sh" ubuntu
-  # Replace by this for an Apache / Php / MariaDB / Memcache stack.
-  # - su -c "/home/ubuntu/setup_DCD_ubuntu.sh apache_mysql_php_memcache_solr" ubuntu
+  # Install Drupal minimal on default full stack
+  # - su -c "/home/ubuntu/setup_DCD_ubuntu.sh default drupal-min" ubuntu
+  # Install Drupal minimal on basic stack
+  # - su -c "/home/ubuntu/setup_DCD_ubuntu.sh apache_mysql_php_memcache_solr drupal-min" ubuntu
   ##############################################################################
   # This part is an example to install Drupal 8, it can be replaced by an other
   # specific script to clone an existing Drupal 8 project.
   # If you clone from a private repo you should add a deploy/token key or use
   # any ssh-agent strategy.
   #
-  # Run Drupal 8 demo Umami install, see scripts/install-drupal.sh for more profiles.
+  # Run Drupal 8 demo Umami install, see scripts/install-drupal.sh
+  # for more profiles.
   - chmod +x /home/ubuntu/docker-compose-drupal/scripts/install-drupal.sh
-  - chown -R "ubuntu:ubuntu" /home/ubuntu/docker-compose-drupal/data/www
+  - chown -R "ubuntu:ubuntu" /home/ubuntu/docker-compose-drupal
   - su -c "/home/ubuntu/docker-compose-drupal/scripts/install-drupal.sh install drupal-demo" ubuntu
 
 ################################################################################

@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 #
-# Download and install Drupal 8 projects for docker4drupal or dockerComposeDrupal.
+# Download and install Drupal 8 projects for DockerComposeDrupal.
 #
 # Usage:
 #   install.sh list | install
 #
 # Depends on:
 #  docker
-#  docker4drupal or dockerComposeDrupal
+#  DockerComposeDrupal
 #
 # Bash Boilerplate: https://github.com/alphabetum/bash-boilerplate
 # Bash Boilerplate: Copyright (c) 2015 William Melody • hi@williammelody.com
@@ -130,7 +130,7 @@ _download() {
 _download_composer() {
   # Setup Drupal 8 composer project.
   if [ -x "$(command -v composer)" ]; then
-    composer create-project ${__PROJECT} ${HOST_WEB_ROOT}/${DRUPAL_SUBROOT} --no-interaction --no-ansi --ignore-platform-reqs --remove-vcs --no-progress --prefer-dist
+    composer create-project ${__PROJECT} ${HOST_WEB_ROOT} --no-interaction --no-ansi --ignore-platform-reqs --remove-vcs --no-progress --prefer-dist
   else
     _docker_exec_noi \
       composer create-project ${__PROJECT} ${DRUPAL_ROOT} --no-interaction --no-ansi --remove-vcs --no-progress --prefer-dist
@@ -175,39 +175,39 @@ _download_curl() {
   # Download the archive and extract.
   curl -fsSL "${__PROJECT}" -o drupal.tar.gz
   tar -xzf drupal.tar.gz -C ${HOST_WEB_ROOT}
-  mv ${HOST_WEB_ROOT}/drupal-composer-advanced-template-8.x-dev ${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}
+  mv ${HOST_WEB_ROOT}/drupal-composer-advanced-template-8.x-dev ${HOST_WEB_ROOT}
 
   _docker_exec_noi_u \
-    chown -R ${PROJECT_UID}:${PROJECT_UID} ${WEB_ROOT}
+    chown -R ${LOCAL_UID}:${LOCAL_GID} ${WEB_ROOT}
 
   # Cleanup.
   rm -f drupal.tar.gz
 
   # Setup Drupal 8 composer project.
   if [ -x "$(command -v composer)" ]; then
-    composer install --working-dir="${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}" --no-suggest --no-interaction --ignore-platform-reqs
+    composer install --working-dir="${HOST_WEB_ROOT}" --no-suggest --no-interaction --ignore-platform-reqs
   else
   
-    # Fix composer cache because we are root. Fix www folder.
+    # Fix composer cache because we are root.
     _docker_exec_noi_u \
       mkdir -p /.composer/cache
 
     _docker_exec_noi_u \
-      chown -R ${PROJECT_UID}:${PROJECT_UID} /.composer
+      chown -R ${LOCAL_UID}:${LOCAL_GID} /.composer
 
     _docker_exec_noi \
       composer install --working-dir="${DRUPAL_ROOT}" --no-suggest --no-interaction 
   fi
 
   if [ -x "$(command -v composer)" ]; then
-    composer install-boostrap-sass --working-dir="${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}"
+    composer install-boostrap-sass --working-dir="${HOST_WEB_ROOT}"
   else
     _docker_exec_noi \
       composer install-boostrap-sass --working-dir="${DRUPAL_ROOT}"
   fi
 
   if [ -x "$(command -v compass)" ]; then
-    compass compile ${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/web/themes/custom/bootstrap_sass
+    compass compile ${HOST_WEB_ROOT}/web/themes/custom/bootstrap_sass
   else
     printf "[warning] Compile manually from your Drupal code root:\\ncompass compile web/themes/custom/bootstrap_sass"
   fi
@@ -266,25 +266,25 @@ _setup_varbase() {
 #   Specific Contenta setup, use .env and drush.
 _setup_contenta() {
   # http://www.contentacms.org/#install
-  if [ -f "${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/.env" ]; then
-    rm -f "${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/.env"
+  if [ -f "${HOST_WEB_ROOT}/.env" ]; then
+    rm -f "${HOST_WEB_ROOT}/.env"
   fi
-  if [ -f "${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/.env.local" ]; then
-    rm -f "${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/.env.local"
+  if [ -f "${HOST_WEB_ROOT}/.env.local" ]; then
+    rm -f "${HOST_WEB_ROOT}/.env.local"
   fi
 
-  cp "${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/.env.example" "${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/.env"
-  cp "${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/.env.local.example" "${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/.env.local"
+  cp "${HOST_WEB_ROOT}/.env.example" "${HOST_WEB_ROOT}/.env"
+  cp "${HOST_WEB_ROOT}/.env.local.example" "${HOST_WEB_ROOT}/.env.local"
 
-  echo "SITE_MAIL=admin@localhost" >>"${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/.env"
-  echo "ACCOUNT_MAIL=admin@localhost" >> "${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/.env"
-  echo "SITE_NAME='Contenta CMS'" >> "${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/.env"
-  echo "ACCOUNT_NAME=admin" >> "${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/.env"
-  echo "MYSQL_DATABASE=$DB_NAME" >> "${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/.env"
-  echo "MYSQL_HOSTNAME=$DB_HOST" >> "${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/.env"
-  echo "MYSQL_USER=$DB_USER" >> "${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/.env"
-  echo "MYSQL_PASSWORD=$DB_PASSWORD" >> "${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/.env.local"
-  echo "ACCOUNT_PASS=password" >> "${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/.env.local"
+  echo "SITE_MAIL=admin@localhost" >>"${HOST_WEB_ROOT}/.env"
+  echo "ACCOUNT_MAIL=admin@localhost" >> "${HOST_WEB_ROOT}/.env"
+  echo "SITE_NAME='Contenta CMS'" >> "${HOST_WEB_ROOT}/.env"
+  echo "ACCOUNT_NAME=admin" >> "${HOST_WEB_ROOT}/.env"
+  echo "MYSQL_DATABASE=$DB_NAME" >> "${HOST_WEB_ROOT}/.env"
+  echo "MYSQL_HOSTNAME=$DB_HOST" >> "${HOST_WEB_ROOT}/.env"
+  echo "MYSQL_USER=$DB_USER" >> "${HOST_WEB_ROOT}/.env"
+  echo "MYSQL_PASSWORD=$DB_PASSWORD" >> "${HOST_WEB_ROOT}/.env.local"
+  echo "ACCOUNT_PASS=password" >> "${HOST_WEB_ROOT}/.env.local"
 
   _docker_exec_noi \
     composer --working-dir="${DRUPAL_ROOT}" run-script install:with-mysql
@@ -296,21 +296,21 @@ _setup_contenta() {
 #   Specific install for advanced template with .env and drush.
 _setup_advanced() {
 
-  cp ${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/.env.example ${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/.env
+  cp ${HOST_WEB_ROOT}/.env.example ${HOST_WEB_ROOT}/.env
 
-  echo "MYSQL_DATABASE=$DB_NAME" >> "${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/.env"
-  echo "MYSQL_HOSTNAME=$DB_HOST" >> "${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/.env"
-  echo "MYSQL_USER=$DB_USER" >> "${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/.env"
-  echo "MYSQL_PASSWORD=$DB_PASSWORD" >> "${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/.env"
+  echo "MYSQL_DATABASE=$DB_NAME" >> "${HOST_WEB_ROOT}/.env"
+  echo "MYSQL_HOSTNAME=$DB_HOST" >> "${HOST_WEB_ROOT}/.env"
+  echo "MYSQL_USER=$DB_USER" >> "${HOST_WEB_ROOT}/.env"
+  echo "MYSQL_PASSWORD=$DB_PASSWORD" >> "${HOST_WEB_ROOT}/.env"
 
-  cp ${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/example.settings.php ${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/web/sites/default/settings.php
-  cp ${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/example.settings.local.php ${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/web/sites/default/settings.local.php
-  cp ${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/example.settings.dev.php ${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/web/sites/default/settings.dev.php
-  cp ${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/example.settings.prod.php ${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/web/sites/default/settings.prod.php
+  cp ${HOST_WEB_ROOT}/example.settings.php ${HOST_WEB_ROOT}/web/sites/default/settings.php
+  cp ${HOST_WEB_ROOT}/example.settings.local.php ${HOST_WEB_ROOT}/web/sites/default/settings.local.php
+  cp ${HOST_WEB_ROOT}/example.settings.dev.php ${HOST_WEB_ROOT}/web/sites/default/settings.dev.php
+  cp ${HOST_WEB_ROOT}/example.settings.prod.php ${HOST_WEB_ROOT}/web/sites/default/settings.prod.php
 
   # Fix permission.
   _docker_exec_noi_u \
-    chown -R ${PROJECT_UID}:${PROJECT_UID} ${DRUPAL_ROOT}/web/sites/default/
+    chown -R ${LOCAL_UID}:${LOCAL_GID} ${DRUPAL_ROOT}/web/sites/default/
 
   # Install this profile with config_installer
   _docker_exec_noi "${DRUSH_BIN}" -y site:install "${__INSTALL_PROFILE}" \
@@ -321,11 +321,11 @@ _setup_advanced() {
 }
 
 _ensure_drush() {
-  if ! [ -f "${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}/vendor/drush/drush/drush" ]; then
+  if ! [ -f "${HOST_WEB_ROOT}/vendor/drush/drush/drush" ]; then
     printf "[info] Install missing drush\\n"
     # Drush is not included in varbase distribution.
     if [ -x "$(command -v composer)" ]; then
-      composer require drush/drush --working-dir="${HOST_WEB_ROOT}/${DRUPAL_SUBROOT}" --ignore-platform-reqs -vv
+      composer require drush/drush --working-dir="${HOST_WEB_ROOT}" --ignore-platform-reqs -vv
     else
       _docker_exec_noi \
         composer require drush/drush --working-dir="${DRUPAL_ROOT}" -vv
@@ -463,7 +463,7 @@ _fix_files_perm() {
   _docker_exec_noi_u \
     chmod -R 777 ${DRUPAL_ROOT}/web/sites/default/files
   _docker_exec_noi_u \
-    chown -R ${PROJECT_UID}:${PROJECT_UID} ${DRUPAL_ROOT}/web/sites/default/files
+    chown -R ${LOCAL_UID}:${LOCAL_GID} ${DRUPAL_ROOT}/web/sites/default/files
   # contenta specific.
   if [[ ${__DID} == "contenta" ]]
   then
@@ -480,7 +480,7 @@ _fix_files_perm() {
 #   Delete a previous downloaded Drupal.
 _nuke() {
   _prompt_yn
-  sudo rm -rf $HOST_WEB_ROOT/$DRUPAL_SUBROOT
+  sudo rm -rf $HOST_WEB_ROOT/* && sudo rm -rf $HOST_WEB_ROOT/.*
 }
 
 ###############################################################################

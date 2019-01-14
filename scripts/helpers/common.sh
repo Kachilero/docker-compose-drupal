@@ -102,6 +102,8 @@ if [ -f $_DIR/../.env.local ]; then
   source $_DIR/../.env.local
 fi
 
+STACK_DRUPAL_ROOT=${STACK_ROOT}${HOST_WEB_ROOT#'./'}/drupal
+
 # Basic variables.
 _NOW="$(date +'%Y%m%d.%H-%M-%S')"
 tty=
@@ -118,7 +120,7 @@ _docker_exec() {
   $_DOCKER exec \
     $tty \
     --interactive \
-    --user ${PROJECT_UID} \
+    --user ${LOCAL_UID} \
     "${PROJECT_CONTAINER_NAME}" \
     "$@"
 }
@@ -126,7 +128,7 @@ _docker_exec() {
 _docker_exec_noi() {
   $_DOCKER exec \
     $tty \
-    --user ${PROJECT_UID} \
+    --user ${LOCAL_UID} \
     "${PROJECT_CONTAINER_NAME}" \
     "$@"
 }
@@ -134,18 +136,6 @@ _docker_exec_noi() {
 _docker_exec_noi_u() {
   $_DOCKER exec \
     "${PROJECT_CONTAINER_NAME}" \
-    "$@"
-}
-
-# Helper to run docker run command.
-_docker_run() {
-  $_DOCKER run \
-    $tty \
-    --interactive \
-    --rm \
-    --user $(id -u):$(id -g) \
-    --volume /etc/passwd:/etc/passwd:ro \
-    --volume /etc/group:/etc/group:ro \
     "$@"
 }
 
@@ -218,7 +208,9 @@ _prompt_yn() {
 _init() {
 
   # The php container is used basically for all scripts.
-  _set_project_container_php
+  if [ -z ${1:-}]; then
+    _set_project_container_php
+  fi
 
 }
 

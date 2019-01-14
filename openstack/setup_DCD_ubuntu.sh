@@ -6,19 +6,12 @@
 # script (From cloud config files in this folder).
 # This script is used with a cloud config setup from this folder.
 
-# Variables.
+# Project variables.
 _USER="ubuntu"
 _GROUP="ubuntu"
-
-# Project variables.
 _BASE=${1-"default"}
+_INSTALL_DRUPAL=${2-}
 _PROJECT_PATH="$HOME/docker-compose-drupal"
-_PHP="dcd-php"
-_PROJECT_ROOT="$_PROJECT_PATH/data/www"
-_ROOT="/var/www/localhost/drupal"
-_WEB="$_ROOT/web"
-_DRUPAL_CONSOLE="$_ROOT/vendor/bin/drupal"
-_DRUSH="$_ROOT/vendor/bin/drush"
 
 # Ensure permissions.
 sudo chown -R $_USER:$_GROUP $HOME
@@ -27,36 +20,35 @@ sudo chown -R $_USER:$_GROUP $HOME
 sudo usermod -a -G docker $_USER
 
 # Get a Docker compose stack.
-if [ ! -d "$_PROJECT_PATH" ]; then
+if ! [ -d "${_PROJECT_PATH}" ]; then
   echo -e "\n>>>>\n[setup::info] Get Docker stack...\n<<<<\n"
-  curl -fSL https://gitlab.com/mog33/docker-compose-drupal/-/archive/master/docker-compose-drupal-master.tar.gz -o docker-compose-drupal-master.tar.gz
-  if ! [ -f "docker-compose-drupal-master.tar.gz" ]; then
-  echo -e "\n>>>>\n[setup::info] Get Docker stack, 2nd try...\n<<<<\n"
-  curl -fSL https://gitlab.com/mog33/docker-compose-drupal/-/archive/master/docker-compose-drupal-master.tar.gz -o docker-compose-drupal-master.tar.gz
-  fi
-  if ! [ -f "docker-compose-drupal-master.tar.gz" ]; then
-    echo -e "\n>>>>\n[setup::error] Failed to download DcD :(\n<<<<\n"
+  git clone https://gitlab.com/mog33/docker-compose-drupal.git ${_PROJECT_PATH}
+  if ! [ -f "${_PROJECT_PATH}/docker-compose.tpl.yml" ]; then
+    echo -e "\n>>>>\n[setup::error] Failed to download DockerComposeDrupal :(\n<<<<\n"
     exit 1
   fi
-  tar -xzf docker-compose-drupal-master.tar.gz
-  mv docker-compose-drupal-master $_PROJECT_PATH
-  rm -f docker-compose-drupal-master.tar.gz
 else
   echo -e "\n>>>>\n[setup::notice] Docker stack already here!\n<<<<\n"
+  exit 1
 fi
 
 # Set-up and launch this Docker compose stack.
 echo -e "\n>>>>\n[setup::info] Prepare Docker stack...\n<<<<\n"
 (cd $_PROJECT_PATH && make setup)
 
-echo -e "\n>>>>\n[setup::info] Set and launch stack ${_BASE}\n<<<<\n"
-if [ -f "$_PROJECT_PATH/samples/$_BASE.yml" ]; then
-  cp $_PROJECT_PATH/samples/$_BASE.yml $_PROJECT_PATH/docker-compose.yml
+# Get stack variables and functions.
+if ! [ -f $_PROJECT_PATH/scripts/helpers/common.sh ]; then
+  echo -e "\n>>>>\n[setup::error] Missing $_PROJECT_PATH/scripts/helpers/common.sh file!"
+  exit 1
+fi
+source $_PROJECT_PATH/scripts/helpers/common.sh "no-running-check"
+
+echo -e "\n>>>>\n[setup::info] Prepare stack ${_BASE}\n<<<<\n"
+if [ -f "$STACK_ROOT/samples/$_BASE.yml" ]; then
+  cp $STACK_ROOT/samples/$_BASE.yml $STACK_ROOT/docker-compose.yml
 fi
 
-docker-compose --file "${_PROJECT_PATH}/docker-compose.yml" up -d --build
-
-# Set-up composer.
+# Set-up Composer.
 if ! [ -f "/usr/bin/composer" ]; then
   echo -e "\n>>>>\n[setup::info] Set-up Composer and dependencies...\n<<<<\n"
   cd $HOME
@@ -76,12 +68,16 @@ if [ -f "$HOME/.config/composer/vendor/bin/phpcs" ]; then
   $HOME/.config/composer/vendor/bin/phpcs --config-set installed_paths $HOME/.config/composer/vendor/drupal/coder/coder_sniffer
 fi
 
-# Check if containers are up...
-RUNNING=$(docker inspect --format="{{ .State.Running }}" $_PHP 2> /dev/null)
-if [ $? -eq 1 ]; then
-  echo -e "\n>>>>\n[setup::ERROR] Container $_PHP does not exist...\n<<<<\n"
-  # Wait a bit for stack to be up....
-  sleep 10s
+if ! [ -z ${_INSTALL_DRUPAL}]; then
+  echo -e "\n>>>>\n[setup::info] Download Drupal ${_INSTALL_DRUPAL}\n<<<<\n"
+  $STACK_ROOT/scripts/install-drupal.sh download ${_INSTALL_DRUPAL}
+fi
+
+docker-compose --file "${STACK_ROOT}/docker-compose.yml" up -d --build
+
+if ! [ -z ${_INSTALL_DRUPAL}]; then
+  echo -e "\n>>>>\n[setup::info] Install Drupal ${_INSTALL_DRUPAL}\n<<<<\n"
+  $STACK_ROOT/scripts/install-drupal.sh setup ${_INSTALL_DRUPAL}
 fi
 
 # Add composer path to environment.
@@ -96,36 +92,36 @@ alias dk='docker'
 # Docker-compose
 alias dkc='docker-compose'
 # Drush and Drupal console
-alias drush="$_PROJECT_PATH/scripts/drush"
-alias drupal="$_PROJECT_PATH/scripts/drupal"
+alias drush="$STACK_ROOT/scripts/drush"
+alias drupal="$STACK_ROOT/scripts/drupal"
 # Check Drupal coding standards
-alias cs="$HOME/.config/composer/vendor/bin/phpcs --standard=Drupal --extensions='php,module,inc,install,test,profile,theme,info'"
+alias csdr="$HOME/.config/composer/vendor/bin/phpcs --standard=Drupal --extensions='php,module,inc,install,test,profile,theme,info'"
 # Check Drupal best practices
-alias csbp="$HOME/.config/composer/vendor/bin/phpcs --standard=DrupalPractice --extensions='php,module,inc,install,test,profile,theme,info'"
+alias csbpdr="$HOME/.config/composer/vendor/bin/phpcs --standard=DrupalPractice --extensions='php,module,inc,install,test,profile,theme,info'"
 # Fix Drupal coding standards
-alias csfix="$HOME/.config/composer/vendor/bin/phpcbf --standard=Drupal --extensions='php,module,inc,install,test,profile,theme,info'"
+alias csfixdr="$HOME/.config/composer/vendor/bin/phpcbf --standard=Drupal --extensions='php,module,inc,install,test,profile,theme,info'"
 EOT
 
 # Convenient links.
-if [ ! -d "$HOME/www" ]; then
-  ln -s $_PROJECT_ROOT $HOME/www
+if ! [ -d "$HOME/drupal" ]; then
+  ln -s $STACK_DRUPAL_ROOT $HOME/drupal
 fi
-if [ ! -d "/www" ]; then
-  sudo ln -s $_PROJECT_ROOT /www
-  sudo chown $_USER:$_GROUP /www
+if ! [ -d "/drupal" ]; then
+  sudo ln -s $STACK_DRUPAL_ROOT /drupal
+  sudo chown $_USER:$_GROUP /drupal
 fi
-if [ ! -d "$HOME/dcd" ]; then
-  ln -s $_PROJECT_PATH $HOME/dcd
+if ! [ -d "$HOME/dcd" ]; then
+  ln -s $TACK_ROOT $HOME/dcd
 fi
-if [ ! -d "/dcd" ]; then
-  sudo ln -s $_PROJECT_PATH $HOME/dcd
+if ! [ -d "/dcd" ]; then
+  sudo ln -s $STACK_ROOT $HOME/dcd
   sudo chown $_USER:$_GROUP /dcd
 fi
 
 # Set up tools from stack.
-if [ -d "$_PROJECT_PATH" ]; then
+if [ -d "$STACK_ROOT" ]; then
   echo -e "\n>>>>\n[setup::info] Setup Docker stack tools...\n<<<<\n"
-  $_PROJECT_PATH/scripts/get-tools.sh install
+  $STACK_ROOT/scripts/get-tools.sh install
 fi
 
 # Ensure permissions.

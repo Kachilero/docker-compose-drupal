@@ -21,6 +21,6 @@ clean-setup:
 	@rm -f ./.env;
 
 nuke: clean-setup
-	@sudo rm -rf data;
+	@sudo rm -rf drupal;
 
 .PHONY: setup up clean nuke

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Helper to get third party tools, part of Docker Compose Drupal project.
+# Helper to get third party tools, part of Docker compose Drupal project.
 # Based on Bash simple Boilerplate.
 # https://github.com/Mogtofu33/docker-compose-drupal
 #
@@ -36,7 +36,7 @@ source $_DIR/helpers/common.sh
 _print_help() {
   _help_logo
   cat <<HEREDOC
-Helper to get third party tools, part of Docker Compose Drupal project.
+Helper to get third party tools, part of Docker compose Drupal project.
 
 Depends on:
   git
