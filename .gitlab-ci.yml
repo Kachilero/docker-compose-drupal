@@ -47,8 +47,6 @@ variables:
     - *docker_pull
     - docker tag $LOCAL_IMAGE/$IMAGE $RELEASE_IMAGE/$IMAGE
     - docker push $RELEASE_IMAGE/$IMAGE
-  only:
-    - master
 
 .install_docker_compose:
     - &install_docker_compose
@@ -98,11 +96,16 @@ dashboard:
   variables:
     IMAGE: dashboard:latest
     DIR: build/dashboard
+  only:
+    - dashboard
+    - master
 
 release:dashboard:
   <<: *release
   variables:
     IMAGE: dashboard:latest
+  only:
+    - master
 
 build:
   stage: build
