@@ -498,6 +498,8 @@ _nuke() {
 #   Entry point for the program, handling basic option parsing and dispatching.
 _main() {
 
+  _set_project_container_php
+
   _SELECTED_PROJECT=${2:-0}
   _DEFAULT_DB=${3:-"mysql"}
 

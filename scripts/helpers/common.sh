@@ -117,6 +117,7 @@ _DOCKER=$(which docker)
 
 # Helpers to run docker exec command.
 _docker_exec() {
+  _set_project_container_php
   $_DOCKER exec \
     $tty \
     --interactive \
@@ -126,6 +127,7 @@ _docker_exec() {
 }
 
 _docker_exec_noi() {
+  _set_project_container_php
   $_DOCKER exec \
     $tty \
     --user ${LOCAL_UID} \
@@ -134,6 +136,7 @@ _docker_exec_noi() {
 }
 
 _docker_exec_noi_u() {
+  _set_project_container_php
   $_DOCKER exec \
     "${PROJECT_CONTAINER_NAME}" \
     "$@"
@@ -163,12 +166,14 @@ _set_container_pgsql() {
 
 # Helper to ensure php container is runing.
 _set_project_container_php() {
-    RUNNING=$(docker ps -f "name=php" -f "status=running" -q | head -1 2> /dev/null)
-  if [ -z "$RUNNING" ]; then
-    die "No running PHP container found, did you run docker-compose up -d ?"
-  else
-    PROJECT_CONTAINER_NAME=$(docker inspect --format="{{ .Name }}" $RUNNING)
-    PROJECT_CONTAINER_NAME="${PROJECT_CONTAINER_NAME///}"
+  if [ -z ${PROJECT_CONTAINER_NAME} ]; then
+      RUNNING=$(docker ps -f "name=php" -f "status=running" -q | head -1 2> /dev/null)
+    if [ -z "$RUNNING" ]; then
+      die "No running PHP container found, did you run docker-compose up -d ?"
+    else
+      PROJECT_CONTAINER_NAME=$(docker inspect --format="{{ .Name }}" $RUNNING)
+      PROJECT_CONTAINER_NAME="${PROJECT_CONTAINER_NAME///}"
+    fi
   fi
 }
 
@@ -196,23 +201,3 @@ _prompt_yn() {
       esac
   done
 }
-
-###############################################################################
-# Init
-###############################################################################
-
-# _init()
-#
-# Description:
-#   Entry point for all programs, check and set minimum variables.
-_init() {
-
-  # The php container is used basically for all scripts.
-  if [ -z ${1:-} ]; then
-    _set_project_container_php
-  fi
-
-}
-
-# Call `_init` after everything has been defined.
-_init $@
