@@ -208,7 +208,7 @@ _prompt_yn() {
 _init() {
 
   # The php container is used basically for all scripts.
-  if [ -z ${1:-}]; then
+  if [ -z ${1:-} ]; then
     _set_project_container_php
   fi
 
