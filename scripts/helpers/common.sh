@@ -102,7 +102,7 @@ if [ -f $_DIR/../.env.local ]; then
   source $_DIR/../.env.local
 fi
 
-STACK_DRUPAL_ROOT=${STACK_ROOT}${HOST_WEB_ROOT#'./'}/drupal
+STACK_DRUPAL_ROOT=${STACK_ROOT}${HOST_WEB_ROOT#'./'}
 
 # Basic variables.
 _NOW="$(date +'%Y%m%d.%H-%M-%S')"

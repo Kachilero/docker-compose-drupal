@@ -35,9 +35,9 @@ runcmd:
   - chmod +x /usr/local/bin/docker-compose
   # External script to setup properly Docker-compose, and Drupal Docker Compose
   # dev stack (this project) with user ubuntu.
-  - wget -q -O /home/ubuntu/setup_DCD_ubuntu.sh "https://gitlab.com/mog33/docker-compose-drupal/raw/master/openstack/setup_DCD_ubuntu.sh?inline=false"
-  - chmod +x /home/ubuntu/setup_DCD_ubuntu.sh
-  - chown "ubuntu:ubuntu" /home/ubuntu/setup_DCD_ubuntu.sh
+  - wget -q -O /home/ubuntu/install.sh "https://gitlab.com/mog33/docker-compose-drupal/raw/master/openstack/install.sh?inline=false"
+  - chmod +x /home/ubuntu/install.sh
+  - chown "ubuntu:ubuntu" /home/ubuntu/install.sh
   #
   ##############################################################################
   # Edit this part to fit your needs.
@@ -45,10 +45,15 @@ runcmd:
   #
   # Default is the whole stack, for more default stacks see:
   #   https://github.com/Mogtofu33/docker-compose-drupal/tree/master/samples
-  # This script accept branch as first argument and samples file name as second.
+  # This script accept samples file name as first argument and Drupal install as
+  # second.
+  # Uncoment depending the distribution you need, default is full with no Drupal
+  # 8 installation
   - su -c "/home/ubuntu/setup_DCD_ubuntu.sh" ubuntu
-  # Replace by this for an Apache / Php / MariaDB / Memcache stack.
-  # - su -c "/home/ubuntu/setup_DCD_ubuntu.sh apache_mysql_php_memcache_solr" ubuntu
+  # Install Drupal minimal on default full stack
+  # - su -c "/home/ubuntu/setup_DCD_ubuntu.sh default drupal-min" ubuntu
+  # Install Drupal minimal on basic stack
+  # - su -c "/home/ubuntu/setup_DCD_ubuntu.sh apache_mysql_php_memcache_solr drupal-min" ubuntu
   ##############################################################################
   # This part is an example to install Drupal 8, it can be replaced by an other
   # specific script to clone an existing Drupal 8 project.
