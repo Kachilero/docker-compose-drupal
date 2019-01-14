@@ -29,13 +29,13 @@ services:
     restart: unless-stopped
     container_name: ${PROJECT_NAME:-dcd}-apache
   php:
-    image: mogtofu33/php:${PHP_VERSION:-7.1}
+    image: mogtofu33/php:${PHP_VERSION:-7.2}
     volumes:
       - ${HOST_WEB_ROOT:-./drupal}:/var/www/localhost
-      - ./config/php/${PHP_VERSION:-7.1}/php.ini:/etc/php7/php.ini:ro
-      - ./config/php/${PHP_VERSION:-7.1}/php-fpm.conf:/etc/php7/php-fpm.conf:ro
-      - ./config/php/${PHP_VERSION:-7.1}/conf.d/:/etc/php7/conf.d/:ro
-      - ./config/php/${PHP_VERSION:-7.1}/php-fpm.d/:/etc/php7/php-fpm.d/:ro
+      - ./config/php/${PHP_VERSION:-7.2}/php.ini:/etc/php7/php.ini:ro
+      - ./config/php/${PHP_VERSION:-7.2}/php-fpm.conf:/etc/php7/php-fpm.conf:ro
+      - ./config/php/${PHP_VERSION:-7.2}/conf.d/:/etc/php7/conf.d/:ro
+      - ./config/php/${PHP_VERSION:-7.2}/php-fpm.d/:/etc/php7/php-fpm.d/:ro
       # Drush 9 config file.
       - ./config/drush/drush.yml:/etc/drush/drush.yml:ro
       # Used by dashboard for accessing tools.

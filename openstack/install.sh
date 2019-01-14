@@ -68,14 +68,14 @@ if [ -f "$HOME/.config/composer/vendor/bin/phpcs" ]; then
   $HOME/.config/composer/vendor/bin/phpcs --config-set installed_paths $HOME/.config/composer/vendor/drupal/coder/coder_sniffer
 fi
 
-if ! [ -z ${_INSTALL_DRUPAL}]; then
+if ! [ -z ${_INSTALL_DRUPAL} ]; then
   echo -e "\n>>>>\n[setup::info] Download Drupal ${_INSTALL_DRUPAL}\n<<<<\n"
   $STACK_ROOT/scripts/install-drupal.sh download ${_INSTALL_DRUPAL}
 fi
 
 docker-compose --file "${STACK_ROOT}/docker-compose.yml" up -d --build
 
-if ! [ -z ${_INSTALL_DRUPAL}]; then
+if ! [ -z ${_INSTALL_DRUPAL} ]; then
   echo -e "\n>>>>\n[setup::info] Install Drupal ${_INSTALL_DRUPAL}\n<<<<\n"
   $STACK_ROOT/scripts/install-drupal.sh setup ${_INSTALL_DRUPAL}
 fi
@@ -106,16 +106,11 @@ EOT
 if ! [ -d "$HOME/drupal" ]; then
   ln -s $STACK_DRUPAL_ROOT $HOME/drupal
 fi
-if ! [ -d "/drupal" ]; then
-  sudo ln -s $STACK_DRUPAL_ROOT /drupal
-  sudo chown $_USER:$_GROUP /drupal
+if ! [ -d "$HOME/dump" ]; then
+  ln -s ${STACK_ROOT}${HOST_DATABASE_DUMP#'./'} $HOME/dump
 fi
-if ! [ -d "$HOME/dcd" ]; then
-  ln -s $TACK_ROOT $HOME/dcd
-fi
-if ! [ -d "/dcd" ]; then
-  sudo ln -s $STACK_ROOT $HOME/dcd
-  sudo chown $_USER:$_GROUP /dcd
+if ! [ -d "$HOME/scripts" ]; then
+  ln -s ${STACK_ROOT}/scripts $HOME/scripts
 fi
 
 # Set up tools from stack.
