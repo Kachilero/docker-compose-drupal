@@ -85,8 +85,8 @@ variables:
     - scripts/get-tools.sh update
     - scripts/composer
     - scripts/drush status
-    - scripts/mysql test
-    - scripts/pgsql test
+    #- scripts/mysql test
+    #- scripts/pgsql test
     - scripts/install-drupal.sh
 
 ################################################################################
