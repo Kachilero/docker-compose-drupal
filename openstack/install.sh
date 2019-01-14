@@ -52,7 +52,7 @@ if ! [ -f ${__project_path}/scripts/helpers/common.sh ]; then
   echo -e "\n>>>>\n[setup::error] Missing ${__project_path}/scripts/helpers/common.sh file!"
   exit 1
 fi
-source ${__project_path}/scripts/helpers/common.sh "no-running-check"
+source ${__project_path}/scripts/helpers/common.sh
 
 echo -e "\n>>>>\n[setup::info] Prepare stack ${__base_stack}\n<<<<\n"
 if [ -f "${STACK_ROOT}/samples/${__base_stack}.yml" ]; then

@@ -152,7 +152,7 @@ _download_composer_contenta() {
   curl --silent --output download-contenta.sh "https://raw.githubusercontent.com/contentacms/contenta_jsonapi_project/8.x-2.x/scripts/download.sh"
 
   # Move to the container and set permission.
-  $_DOCKER cp download-contenta.sh "${PROJECT_CONTAINER_NAME}":/tmp/download-contenta.sh
+  $_DOCKER cp download-contenta.sh dcd-php:/tmp/download-contenta.sh
   _docker_exec_noi_u \
     chmod a+x /tmp/download-contenta.sh
 
@@ -497,8 +497,6 @@ _nuke() {
 # Description:
 #   Entry point for the program, handling basic option parsing and dispatching.
 _main() {
-
-  _set_project_container_php
 
   _SELECTED_PROJECT=${2:-0}
   _DEFAULT_DB=${3:-"mysql"}

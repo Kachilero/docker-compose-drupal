@@ -115,31 +115,25 @@ _DOCKER=$(which docker)
 # Common Program Functions
 ###############################################################################
 
-# Helpers to run docker exec command.
+# Helpers to run docker exec command on Php.
 _docker_exec() {
-  _set_project_container_php
   $_DOCKER exec \
     $tty \
     --interactive \
     --user ${LOCAL_UID} \
-    "${PROJECT_CONTAINER_NAME}" \
-    "$@"
+    dcd-php "$@"
 }
 
 _docker_exec_noi() {
-  _set_project_container_php
   $_DOCKER exec \
     $tty \
     --user ${LOCAL_UID} \
-    "${PROJECT_CONTAINER_NAME}" \
-    "$@"
+    dcd-php "$@"
 }
 
 _docker_exec_noi_u() {
-  _set_project_container_php
   $_DOCKER exec \
-    "${PROJECT_CONTAINER_NAME}" \
-    "$@"
+    dcd-php "$@"
 }
 
 # Helper to ensure mysql container is runing.
@@ -161,17 +155,6 @@ _set_container_pgsql() {
   else
     PROJECT_CONTAINER_PGSQL=$(docker inspect --format="{{ .Name }}" $RUNNING)
     PROJECT_CONTAINER_PGSQL="${PROJECT_CONTAINER_PGSQL///}"
-  fi
-}
-
-# Helper to ensure php container is runing.
-_set_project_container_php() {
-  RUNNING=$(docker ps -f "name=php" -f "status=running" -q | head -1 2> /dev/null)
-  if [ -z "$RUNNING" ]; then
-    die "No running PHP container found, did you run docker-compose up -d ?"
-  else
-    PROJECT_CONTAINER_NAME=$(docker inspect --format="{{ .Name }}" $RUNNING)
-    PROJECT_CONTAINER_NAME="${PROJECT_CONTAINER_NAME///}"
   fi
 }
 
